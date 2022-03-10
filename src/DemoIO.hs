@@ -2,6 +2,7 @@ module DemoIO where
 
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
+import System.Environment
 
 --------------
 -- Data types.
@@ -105,7 +106,9 @@ updateApp _ x = x
 run :: IO ()
 run = do
   -- Load config file contents (unpure action).
-  str <- readFile configPath
+  configPath2 <- fmap head getArgs
+  num <- fmap (\(x:y:ys) -> read y :: Int) getArgs
+  str <- readFile configPath2
   -- Try to parse config.
   case parseConfig str of
     Nothing -> putStrLn "Wrong config"
@@ -113,5 +116,5 @@ run = do
       -- Get new random number generator (unpure action).
       rndGen <- newStdGen
       -- Run application.
-      play display bgColor fps (AppState 0 rndGen cfg) drawApp
+      play display bgColor fps (AppState num rndGen cfg) drawApp
         handleEvent updateApp
