@@ -87,6 +87,9 @@ handleEvent (EventKey (SpecialKey KeySpace) Down _ _) (AppState _ r c) =
   let (newn, newr) = randomR numbersRange r
   -- Update BOTH number AND generator.
   in AppState newn newr c
+-- Set number to 0 on mouse click.
+handleEvent (EventKey (MouseButton _) Down _ _) state =
+  state { number = 0 }
 -- Ignore all other events.
 handleEvent _ state = state
 
