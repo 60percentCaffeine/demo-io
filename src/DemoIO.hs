@@ -3,6 +3,8 @@ module DemoIO where
 import Graphics.Gloss.Interface.Pure.Game
 import System.Random
 import System.Environment
+import Text.Read
+import Data.Maybe
 
 --------------
 -- Data types.
@@ -102,12 +104,25 @@ updateApp _ x = x
 -- Main function for this app.
 ------------------------------
 
+parseArgs2 :: [String] -> (Maybe String, Maybe Int)
+parseArgs2 [cfg, num] = (Just cfg, readMaybe num)
+parseArgs2 _ = error "Wrong number of arguments"
+
+argsJust :: (Maybe String, Maybe Int) -> (String, Int)
+argsJust (Just x, Just y) = (x, y)
+argsJust (Nothing, Nothing) = error "Couldn't parse the config name and the default state"
+argsJust (Nothing, _) = error "Couldn't parse the config name"
+argsJust (_, Nothing) = error "Couldn't parse the default state"
+
+parseArgs :: [String] -> (String, Int)
+parseArgs x = argsJust (parseArgs2 x)
+
 -- Run game. This is the ONLY unpure function.
 run :: IO ()
 run = do
+  (configPath2, num) <- fmap parseArgs getArgs
+
   -- Load config file contents (unpure action).
-  configPath2 <- fmap head getArgs
-  num <- fmap (\(x:y:ys) -> read y :: Int) getArgs
   str <- readFile configPath2
   -- Try to parse config.
   case parseConfig str of
